@@ -1,0 +1,388 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Caffeine Market — корпоративные подарки на Новый год</title>
+<meta name="description" content="Подарочные коробки, ёлочные игрушки, коробки «Юрта», ключницы, награды и сувениры с логотипом вашей компании.">
+<link rel="icon" href="img/logo-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --text: #e9e6ee;
+    --muted: #c9c3d3;
+    --accent: #ffb547;
+    --panel: rgba(12, 10, 18, .55);
+    --slot: #d4d4d4;
+    --gap: clamp(12px, 2vw, 22px);
+    --pad: clamp(16px, 6vw, 72px);
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    background: #0b0a10;
+    color: var(--text);
+    font-family: "Exo 2", system-ui, sans-serif;
+    font-size: clamp(14px, 1.1vw, 17px);
+    line-height: 1.45;
+    text-transform: uppercase;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ===== Фон: одна картинка, которая «едет» при прокрутке ===== */
+  .bg {
+    position: fixed; inset: 0; z-index: -2; overflow: hidden;
+  }
+  .bg img {
+    position: absolute; left: 50%; top: 0;
+    width: 100%; height: auto;
+    transform: translate(-50%, 0);
+    will-change: transform;
+    user-select: none; pointer-events: none;
+  }
+  /* затемнение поверх фона — как в макете, чтобы текст читался */
+  .bg::after {
+    content: ""; position: absolute; inset: 0;
+    background: linear-gradient(90deg, rgba(8,7,12,.55) 0%, rgba(8,7,12,.35) 55%, rgba(8,7,12,.15) 100%);
+  }
+
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 0 var(--pad); }
+
+  /* ===== Шапка ===== */
+  .hero { min-height: 100vh; display: flex; flex-direction: column; justify-content: center; padding: 6vh 0 10vh; }
+  .hero .logo { width: clamp(220px, 30vw, 380px); height: auto; margin-bottom: clamp(32px, 8vh, 90px); }
+  .hero h1 { margin: 0; font-weight: 800; line-height: 1; }
+  .hero h1 small { display: block; font-size: clamp(22px, 3.6vw, 44px); margin-bottom: .25em; }
+  .hero h1 span { display: block; font-size: clamp(44px, 8vw, 96px); }
+  .scroll-hint {
+    margin-top: 8vh; font-size: 13px; letter-spacing: .2em; color: var(--muted);
+    display: inline-flex; align-items: center; gap: 10px; text-decoration: none;
+  }
+  .scroll-hint::after { content: "↓"; font-size: 18px; animation: bob 1.6s ease-in-out infinite; }
+  @keyframes bob { 50% { transform: translateY(5px); } }
+
+  /* ===== Разделы ===== */
+  section.item { padding: clamp(56px, 10vh, 120px) 0; }
+  h2 {
+    margin: 0 0 .6em; font-weight: 800;
+    font-size: clamp(24px, 3.2vw, 40px); line-height: 1.1;
+  }
+  .lead { color: #fff; font-weight: 500; }
+  p { margin: 0 0 1em; max-width: 980px; }
+  h3 { font-size: 1em; font-weight: 800; margin: 1.6em 0 .6em; }
+  ul.dash { list-style: none; padding: 0; margin: 0 0 1em; }
+  ul.dash li::before { content: "— "; color: var(--accent); }
+  .price { color: var(--accent); font-weight: 800; white-space: nowrap; text-transform: none; }
+  .note { font-weight: 700; }
+
+  table.prices { border-collapse: collapse; margin: 1.2em 0 1.4em; }
+  table.prices th { text-align: left; font-weight: 800; padding: 0 2.2em .4em 0; }
+  table.prices td { padding: .15em 2.2em .15em 0; vertical-align: top; }
+  .colors dt { display: inline; font-weight: 400; }
+  .colors dd { display: inline; margin: 0 0 0 .6em; }
+  .colors div { margin-bottom: .2em; }
+
+  /* ===== Фото: 3 в ряд, на телефоне — листаются вбок ===== */
+  .photos {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--gap);
+    margin-top: clamp(24px, 4vh, 40px);
+  }
+  .photos button {
+    all: unset; cursor: zoom-in; display: block;
+    aspect-ratio: 1; background: var(--slot); overflow: hidden;
+  }
+  .photos img {
+    width: 100%; height: 100%; object-fit: cover; display: block;
+    transition: transform .5s ease;
+  }
+  .photos button:hover img, .photos button:focus-visible img { transform: scale(1.05); }
+  .photos button:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+
+  /* ===== Финал ===== */
+  .final { padding-top: clamp(56px, 10vh, 120px); }
+  .cta { display: flex; flex-wrap: wrap; gap: 12px; margin: 1.6em 0 2em; }
+  .btn {
+    display: inline-flex; align-items: center; gap: .6em;
+    padding: .95em 1.6em; border-radius: 999px; text-decoration: none;
+    font-weight: 800; letter-spacing: .04em; color: #15121c; background: var(--accent);
+    transition: transform .2s ease, background .2s ease;
+  }
+  .btn:hover { transform: translateY(-2px); background: #ffc76f; }
+  .btn.ghost { background: transparent; color: var(--text); box-shadow: inset 0 0 0 2px rgba(255,255,255,.6); }
+  .btn.ghost:hover { background: rgba(255,255,255,.1); }
+  .slogan { font-weight: 800; color: #fff; }
+  .end { height: 75vh; display: flex; align-items: flex-start; justify-content: center; padding-top: 6vh; }
+  .end img { width: clamp(120px, 14vw, 200px); height: auto; opacity: .95; }
+
+  /* ===== Просмотр фото ===== */
+  .lightbox {
+    position: fixed; inset: 0; z-index: 10; display: none;
+    align-items: center; justify-content: center;
+    background: rgba(5,4,8,.92); cursor: zoom-out; padding: 16px;
+  }
+  .lightbox.open { display: flex; }
+  .lightbox img { max-width: 100%; max-height: 100%; object-fit: contain; }
+
+  @media (max-width: 700px) {
+    body { font-size: 14px; }
+    .bg::after { background: rgba(8,7,12,.5); }
+    .photos {
+      display: flex; overflow-x: auto; scroll-snap-type: x mandatory;
+      margin-right: calc(-1 * var(--pad)); padding-right: var(--pad);
+      scrollbar-width: none;
+    }
+    .photos::-webkit-scrollbar { display: none; }
+    .photos button { flex: 0 0 78%; scroll-snap-align: start; }
+    table.prices th, table.prices td { padding-right: 1em; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    .scroll-hint::after { animation: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="bg" aria-hidden="true"><img id="bg" src="img/bg.jpg" alt=""></div>
+
+<main class="wrap">
+
+  <header class="hero">
+    <img class="logo" src="img/logo-name.png" alt="Caffeine Market">
+    <h1><small>Корпоративные подарки</small><span>на Новый год</span></h1>
+    <a class="scroll-hint" href="#boxes">Смотреть предложение</a>
+  </header>
+
+  <!-- 01 -->
+  <section class="item" id="boxes">
+    <h2>01. Подарочные коробки</h2>
+    <p class="lead">Индивидуальная упаковка — основа особенного подарка.</p>
+    <p>Подарочная коробка — это не просто упаковка, а возможность создать уникальный набор, который будет отражать стиль вашей компании и производить впечатление ещё до того, как подарок откроют.</p>
+    <p>Хотите собрать собственный подарочный набор? Мы поможем подобрать подходящий формат коробки, продумать внутреннее наполнение и разработать дизайн, чтобы все элементы гармонично сочетались между собой.</p>
+
+    <table class="prices">
+      <thead><tr><th>Размер</th><th>Комплектация</th><th>Цена</th></tr></thead>
+      <tbody>
+        <tr><td>31×37 см</td><td>2 перегородки, 3 отделения</td><td class="price">690 сом</td></tr>
+        <tr><td>21×37 см</td><td>1 перегородка, 2 отделения</td><td class="price">490 сом</td></tr>
+        <tr><td>21×21 см</td><td>без перегородок</td><td class="price">390 сом</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Цветовые решения</h3>
+    <dl class="colors">
+      <div><dt>Внешняя сторона:</dt><dd>чёрный | золотой | тёмное дерево</dd></div>
+      <div><dt>Внутренняя сторона:</dt><dd>натуральное светлое дерево (без покраски)</dd></div>
+    </dl>
+
+    <p class="note">Разработка дизайна — бесплатно.</p>
+    <p class="note">Нанесение логотипа компании — включено в стоимость.</p>
+    <p class="note">Другие цвета и размеры — обсуждаются с индивидуальным расчётом стоимости.</p>
+
+    <div class="photos">
+      <button type="button"><img src="img/box-1.jpg" alt="Подарочная коробка" loading="lazy"></button>
+      <button type="button"><img src="img/box-2.jpg" alt="Подарочная коробка" loading="lazy"></button>
+      <button type="button"><img src="img/box-3.jpg" alt="Подарочная коробка" loading="lazy"></button>
+    </div>
+  </section>
+
+  <!-- 02 -->
+  <section class="item" id="toys">
+    <h2>02. Ёлочные игрушки — символ года</h2>
+    <p class="lead">Подарок, который станет частью новогодней традиции.</p>
+    <p>Каждый год — новый символ, новые персонажи и новые поводы украсить праздничную ёлку!</p>
+    <p>В этом году предлагаем набор из трёх деревянных ёлочных игрушек с изображением козликов в разных образах и ситуациях. Каждая игрушка имеет собственный характер и дизайн, а вместе они образуют единую тематическую коллекцию.</p>
+
+    <h3>Комплектация</h3>
+    <ul class="dash">
+      <li>3 деревянные ёлочные игрушки в одной упаковке</li>
+      <li>размер каждой игрушки — 10×7 см</li>
+      <li>деревянная подарочная коробочка</li>
+      <li>логотип вашей компании на упаковке</li>
+    </ul>
+
+    <h3>Стоимость</h3>
+    <p><span class="price">450 сом</span> / набор (3 игрушки)</p>
+
+    <p>Хотите сделать подарок по-настоящему уникальным? Мы можем разработать отдельную серию игрушек специально для вашей компании.</p>
+    <p>Это может быть фирменная стилистика, корпоративные персонажи, тематические иллюстрации или совершенно необычная концепция.</p>
+    <p>В галерее также представлены примеры наших прошлогодних коллекций: драконы, кролики, тигрята и другие персонажи.</p>
+    <p class="note">Разработка индивидуального дизайна доступна при заказе от 40 наборов.</p>
+
+    <div class="photos">
+      <button type="button"><img src="img/toys-1.jpg" alt="Ёлочные игрушки" loading="lazy"></button>
+      <button type="button"><img src="img/toys-2.jpg" alt="Ёлочные игрушки" loading="lazy"></button>
+      <button type="button"><img src="img/toys-3.jpg" alt="Ёлочные игрушки" loading="lazy"></button>
+    </div>
+  </section>
+
+  <!-- 03 -->
+  <section class="item" id="yurta">
+    <h2>03. Подарочная коробка «Юрта»</h2>
+    <p class="lead">Национальный колорит в оригинальном исполнении.</p>
+    <p>Необычная подарочная упаковка в форме кыргызской юрты — отличный вариант для создания праздничного набора с национальным характером.</p>
+    <p>Коробка идеально подойдёт для наполнения орехами, сухофруктами, сладостями, мёдом и другими угощениями. Такой подарок станет приятным знаком внимания для сотрудников, партнёров и клиентов.</p>
+
+    <h3>Варианты исполнения</h3>
+    <ul class="dash">
+      <li>премиум — <span class="price">490 сом</span> / шт.</li>
+      <li>бюджетный — <span class="price">350 сом</span> / шт.</li>
+    </ul>
+    <p class="note">Минимальный тираж — 20 штук.</p>
+
+    <div class="photos">
+      <button type="button"><img src="img/urta-1.jpg" alt="Коробка «Юрта»" loading="lazy"></button>
+      <button type="button"><img src="img/urta-2.jpg" alt="Коробка «Юрта»" loading="lazy"></button>
+      <button type="button"><img src="img/urta-3.jpg" alt="Коробка «Юрта»" loading="lazy"></button>
+    </div>
+  </section>
+
+  <!-- 04 -->
+  <section class="item" id="keys">
+    <h2>04. Ключницы</h2>
+    <p class="lead">Подарок, который найдёт своё место в каждом доме.</p>
+    <p>На первый взгляд ключница может показаться необычным вариантом корпоративного подарка. Но именно в этом её преимущество — это практичная вещь, которая будет использоваться каждый день и постоянно напоминать о вашей компании.</p>
+    <p>Мы можем адаптировать дизайн ключницы под фирменный стиль, добавить логотип, название компании и разработать уникальное оформление.</p>
+
+    <h3>Особенно актуально для строительных компаний</h3>
+    <p>Ключница — отличный подарок для клиентов при покупке новой квартиры или дома. Новая квартира — новые ключи, а значит, и новое место для ключницы! Такой подарок станет приятным дополнением к передаче ключей и поможет оставить о вашей компании хорошее впечатление.</p>
+
+    <h3>Стоимость</h3>
+    <p>Рассчитывается индивидуально и зависит от выбранного дизайна, комплектации и тиража.</p>
+
+    <h3>Варианты исполнения</h3>
+    <ul class="dash">
+      <li>ключница с индивидуальным дизайном</li>
+      <li>нанесение логотипа и фирменной символики</li>
+      <li>поставка в подарочной деревянной коробке</li>
+      <li>поставка без коробки — более бюджетное решение</li>
+    </ul>
+
+    <div class="photos">
+      <button type="button"><img src="img/kluch-1.jpg" alt="Ключница" loading="lazy"></button>
+      <button type="button"><img src="img/kluch-2.jpg" alt="Ключница" loading="lazy"></button>
+      <button type="button"><img src="img/kluch-3.jpg" alt="Ключница" loading="lazy"></button>
+    </div>
+  </section>
+
+  <!-- 05 -->
+  <section class="item" id="awards">
+    <h2>05. Награды и статуэтки</h2>
+    <p class="lead">Отмечайте достижения красиво!</p>
+    <p>Оригинальные награды и памятные статуэтки из дерева и пластика — отличный способ выразить признание, отметить успехи сотрудников, наградить партнёров или сохранить память о важном событии.</p>
+    <p>Мы создаём изделия с индивидуальным дизайном, сочетая различные материалы, формы и фактуры. Каждая награда может стать уникальным отражением ценностей и фирменного стиля вашей компании.</p>
+
+    <h3>Возможности изготовления</h3>
+    <ul class="dash">
+      <li>любые формы, размеры и варианты исполнения</li>
+      <li>сочетание дерева, пластика и кожи</li>
+      <li>индивидуальная разработка дизайна</li>
+      <li>нанесение логотипов, имён, надписей и памятных дат</li>
+      <li>изготовление наград для корпоративных мероприятий, конкурсов, юбилеев и профессиональных достижений</li>
+    </ul>
+
+    <div class="photos">
+      <button type="button"><img src="img/stat-1.jpg" alt="Награды и статуэтки" loading="lazy"></button>
+      <button type="button"><img src="img/stat-2.jpg" alt="Награды и статуэтки" loading="lazy"></button>
+      <button type="button"><img src="img/stat-3.jpg" alt="Награды и статуэтки" loading="lazy"></button>
+    </div>
+  </section>
+
+  <!-- 06 -->
+  <section class="item" id="small">
+    <h2>06. Интересные мелочи</h2>
+    <p class="lead">Небольшие подарки, которые напоминают о вашей компании.</p>
+    <p>Иногда именно небольшие и полезные вещи становятся приятными повседневными спутниками. Мы предлагаем различные сувениры и аксессуары, которые можно адаптировать под фирменный стиль вашей компании.</p>
+
+    <h3>Что можем предложить?</h3>
+    <ul class="dash">
+      <li>брелоки — компактные аксессуары с вашим логотипом</li>
+      <li>магниты — небольшие памятные сувениры с индивидуальным дизайном</li>
+      <li>подставки для телефонов — практичный аксессуар для рабочего стола и дома</li>
+      <li>блокноты — полезный подарок для сотрудников, клиентов и партнёров</li>
+    </ul>
+    <p>Отличный вариант для массовых корпоративных подарков, дополнения больших наборов и приятных комплиментов вашим клиентам.</p>
+
+    <div class="photos">
+      <button type="button"><img src="img/meloch-1.jpg" alt="Сувениры" loading="lazy"></button>
+      <button type="button"><img src="img/meloch-2.jpg" alt="Сувениры" loading="lazy"></button>
+      <button type="button"><img src="img/meloch-3.jpg" alt="Сувениры" loading="lazy"></button>
+    </div>
+  </section>
+
+  <!-- Финал -->
+  <section class="final" id="contact">
+    <h2>А если вашей идеи нет в списке?</h2>
+    <p class="lead">Мы можем гораздо больше, чем представлено в этом предложении!</p>
+    <p>Все изделия выше — лишь небольшая часть того, что мы можем изготовить. Мы не ограничиваемся готовым ассортиментом: любые ваши идеи, задумки и даже самые необычные фантазии можем превратить в реальные изделия.</p>
+    <p class="note">Приглашаем вас заглянуть на нашу страницу в Instagram — возможно, среди наших проектов вы найдёте идею, которая вдохновит вас на создание собственного подарка.</p>
+    <p class="note">Напишите нам в WhatsApp — обсудим любые идеи, тиражи, варианты исполнения и подготовим прозрачный расчёт стоимости без скрытых условий.</p>
+
+    <!-- TODO: вставить реальный номер WhatsApp (только цифры, с кодом страны) и ссылку на Instagram -->
+    <div class="cta">
+      <a class="btn" href="https://wa.me/996000000000" target="_blank" rel="noopener">Написать в WhatsApp</a>
+      <a class="btn ghost" href="https://instagram.com/" target="_blank" rel="noopener">Instagram</a>
+    </div>
+
+    <h3>Важный момент — сроки!</h3>
+    <p>Новогодний сезон — горячее время для производства, поэтому рекомендуем оформлять заказы заранее. Это позволит спокойно согласовать дизайн, подготовить тираж и гарантированно уложиться в сроки.</p>
+    <p>А ещё раннее оформление заказа — возможность получить дополнительную скидку!</p>
+    <p>Не откладывайте подготовку новогодних подарков на последний момент.</p>
+    <p class="slogan">Caffeine Market — ваши идеи. Наше производство. Уникальные подарки!</p>
+  </section>
+
+  <!-- пустое место внизу, чтобы в конце было видно подарки на фоне -->
+  <div class="end"><img src="img/logo-icon.png" alt=""></div>
+</main>
+
+<div class="lightbox" id="lightbox" role="dialog" aria-label="Просмотр фото"><img alt=""></div>
+
+<script>
+  // Фон: картинка масштабируется по ширине (или по высоте, если экран узкий),
+  // и пока страницу листают сверху вниз — фон едет от неба с санями до подарков.
+  (function () {
+    var img = document.getElementById('bg');
+    var W = 1600, H = 2844, extra = 0, ticking = false;
+
+    function layout() {
+      var vw = window.innerWidth, vh = window.innerHeight;
+      var s = Math.max(vw / W, vh / H);
+      var h = H * s;
+      img.style.width = (W * s) + 'px';
+      img.style.height = h + 'px';
+      extra = Math.max(0, h - vh);
+      update();
+    }
+    function update() {
+      ticking = false;
+      var max = document.documentElement.scrollHeight - window.innerHeight;
+      var p = max > 0 ? Math.min(1, Math.max(0, window.scrollY / max)) : 0;
+      img.style.transform = 'translate(-50%,' + (-extra * p).toFixed(1) + 'px)';
+    }
+    window.addEventListener('scroll', function () {
+      if (!ticking) { ticking = true; requestAnimationFrame(update); }
+    }, { passive: true });
+    window.addEventListener('resize', layout);
+    window.addEventListener('load', layout);
+    layout();
+  })();
+
+  // Просмотр фото по клику
+  (function () {
+    var box = document.getElementById('lightbox'), big = box.querySelector('img');
+    document.querySelectorAll('.photos button').forEach(function (b) {
+      b.addEventListener('click', function () {
+        var i = b.querySelector('img');
+        big.src = i.src; big.alt = i.alt; box.classList.add('open');
+      });
+    });
+    function close() { box.classList.remove('open'); }
+    box.addEventListener('click', close);
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape') close(); });
+  })();
+</script>
+</body>
+</html>
