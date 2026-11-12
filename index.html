@@ -41,12 +41,13 @@
     width: 100%; height: auto;
     transform: translate(-50%, 0);
     will-change: transform;
+    filter: blur(4px);               /* фон немного размыт */
     user-select: none; pointer-events: none;
   }
-  /* затемнение поверх фона — как в макете, чтобы текст читался */
+  /* затемнение поверх фона: 40% чёрного */
   .bg::after {
     content: ""; position: absolute; inset: 0;
-    background: linear-gradient(90deg, rgba(8,7,12,.55) 0%, rgba(8,7,12,.35) 55%, rgba(8,7,12,.15) 100%);
+    background: rgba(0, 0, 0, .4);
   }
 
   .wrap { max-width: 1180px; margin: 0 auto; padding: 0 var(--pad); }
@@ -85,27 +86,111 @@
   .colors dd { display: inline; margin: 0 0 0 .6em; }
   .colors div { margin-bottom: .2em; }
 
-  /* ===== Фото: 3 в ряд, на телефоне — листаются вбок ===== */
-  .photos {
-    display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--gap);
-    margin-top: clamp(24px, 4vh, 40px);
+  /* ===== Галерея (как на основном сайте): лента, выходит за правый край ===== */
+  :root {
+    --vw: 100vw;                     /* ширина окна без полосы прокрутки, ставится из JS */
+    --edge: max(var(--pad), calc((var(--vw) - 1180px) / 2 + var(--pad)));  /* левый край текста */
+    --peek: 22vw;                    /* телефон: 1 фото + край следующего */
+    --slide-w: calc(var(--vw) - var(--edge) - var(--gap) - var(--peek));
   }
-  .photos button {
-    all: unset; cursor: zoom-in; display: block;
-    aspect-ratio: 1; background: var(--slot); overflow: hidden;
+  @media (min-width: 900px) {        /* компьютер: 3 фото + край четвёртого */
+    :root {
+      --peek: 7vw;
+      --slide-w: calc((var(--vw) - var(--edge) - var(--gap) * 3 - var(--peek)) / 3);
+    }
   }
-  .photos img {
-    width: 100%; height: 100%; object-fit: cover; display: block;
-    transition: transform .5s ease;
+  body { overflow-x: clip; }
+  .gallery {
+    width: var(--vw);
+    margin: clamp(24px, 4vh, 40px) 0 0 calc(var(--edge) * -1);
+    text-transform: none;
   }
-  .photos button:hover img, .photos button:focus-visible img { transform: scale(1.05); }
-  .photos button:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+  .gallery__stage { position: relative; }
+  .gallery__track {
+    display: flex; gap: var(--gap);
+    padding: 0 var(--pad) 0 var(--edge);
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scroll-padding-left: var(--edge);
+    scrollbar-width: none;
+    overscroll-behavior-x: contain;
+  }
+  .gallery__track::-webkit-scrollbar { display: none; }
+  .slide {
+    flex: 0 0 var(--slide-w); aspect-ratio: 1; margin: 0;
+    scroll-snap-align: start; background: var(--slot); overflow: hidden; cursor: pointer;
+  }
+  .slide img, .slide video { display: block; width: 100%; height: 100%; object-fit: cover; }
+  .slide--video { position: relative; }
+  .slide--video::after {
+    content: ""; position: absolute; left: 14px; bottom: 14px; width: 0; height: 0;
+    border-style: solid; border-width: 9px 0 9px 15px;
+    border-color: transparent transparent transparent rgba(255,255,255,.85);
+    filter: drop-shadow(0 0 4px rgba(0,0,0,.6));
+  }
+  /* затемнение краёв */
+  .gallery__stage::before, .gallery__stage::after {
+    content: ""; position: absolute; top: 0; bottom: 0; z-index: 1;
+    pointer-events: none; transition: opacity .3s;
+  }
+  .gallery__stage::after {
+    right: 0; width: var(--peek);
+    background: linear-gradient(to right, rgba(8,7,12,.15), rgba(8,7,12,.85));
+  }
+  .gallery__stage::before {
+    left: 0; width: var(--edge);
+    background: linear-gradient(to left, rgba(8,7,12,0), rgba(8,7,12,.85));
+  }
+  .gallery.is-end .gallery__stage::after,
+  .gallery.is-start .gallery__stage::before { opacity: 0; }
+  /* стрелки: нажимать можно по всей полосе у края */
+  .gallery__arrow {
+    position: absolute; top: 0; bottom: 0; z-index: 2;
+    border: 0; padding: 0; background: transparent; cursor: pointer;
+    opacity: .75; transition: opacity .2s; -webkit-tap-highlight-color: transparent;
+  }
+  .gallery__arrow:hover { opacity: 1; }
+  .gallery__arrow[hidden] { display: none; }
+  .gallery__arrow--next { right: 0; width: max(56px, var(--peek)); }
+  .gallery__arrow--prev { left: 0; width: max(56px, calc(var(--edge) + 5vw)); }
+  .gallery__arrow::before {
+    content: ""; position: absolute; top: 50%; width: 20px; height: 40px; margin-top: -20px;
+    background: rgba(233,230,238,.8); clip-path: polygon(0 0, 100% 50%, 0 100%);
+    filter: drop-shadow(0 0 6px rgba(0,0,0,.4));
+  }
+  .gallery__arrow--next::before { right: 14px; }
+  .gallery__arrow--prev::before { left: max(14px, calc(var(--edge) - 34px)); clip-path: polygon(100% 0, 0 50%, 100% 100%); }
+  /* полоса прокрутки: на телефоне — индикатор, на компьютере — можно тянуть */
+  .gallery__bar {
+    position: relative; height: 18px; margin: 8px var(--pad) 0 var(--edge);
+    cursor: pointer; touch-action: none;
+  }
+  .gallery__bar[hidden] { display: none; }
+  .gallery__bar::before {
+    content: ""; position: absolute; left: 0; right: 0; top: 50%; height: 2px; margin-top: -1px;
+    background: rgba(233,230,238,.18);
+  }
+  .gallery__thumb {
+    position: absolute; top: 50%; height: 2px; margin-top: -1px;
+    background: rgba(233,230,238,.75); border-radius: 2px;
+    transition: height .15s, margin-top .15s, background .15s;
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .gallery__thumb { height: 4px; margin-top: -2px; cursor: grab; }
+    .gallery__bar:hover .gallery__thumb, .gallery.is-dragging .gallery__thumb {
+      height: 8px; margin-top: -4px; background: var(--accent);
+    }
+    .gallery.is-dragging .gallery__thumb { cursor: grabbing; }
+  }
+  .gallery.is-dragging { user-select: none; }
 
   /* ===== Финал ===== */
   .final { padding-top: clamp(56px, 10vh, 120px); }
   .cta-block { margin: 1.4em 0 1.8em; }
   .cta-block p { margin-bottom: .7em; font-weight: 700; color: #fff; }
-  .btn.ghost { text-transform: none; }
+  .cta-block .btn { width: min(100%, 320px); justify-content: center; }
+  .btn.insta { background: #e4407b; color: #fff; text-transform: none; }
+  .btn.insta:hover { background: #ee5c90; }
   .btn {
     display: inline-flex; align-items: center; gap: .6em;
     padding: .95em 1.6em; border-radius: 999px; text-decoration: none;
@@ -113,31 +198,56 @@
     transition: transform .2s ease, background .2s ease;
   }
   .btn:hover { transform: translateY(-2px); background: #ffc76f; }
-  .btn.ghost { background: transparent; color: var(--text); box-shadow: inset 0 0 0 2px rgba(255,255,255,.6); }
-  .btn.ghost:hover { background: rgba(255,255,255,.1); }
   .slogan { font-weight: 800; color: #fff; }
   .end { height: 75vh; display: flex; align-items: flex-start; justify-content: center; padding-top: 6vh; }
   .end img { width: clamp(120px, 14vw, 200px); height: auto; opacity: .95; }
 
-  /* ===== Просмотр фото ===== */
-  .lightbox {
-    position: fixed; inset: 0; z-index: 10; display: none;
-    align-items: center; justify-content: center;
-    background: rgba(5,4,8,.92); cursor: zoom-out; padding: 16px;
+  /* ===== Полноэкранный просмотр (листается свайпом, стрелками, клавишами) ===== */
+  .viewer { position: fixed; inset: 0; z-index: 100; background: #0b0a10; touch-action: pan-x; }
+  .viewer[hidden] { display: none; }
+  .viewer__track {
+    display: flex; height: 100%; overflow-x: auto;
+    scroll-snap-type: x mandatory; scrollbar-width: none; touch-action: pan-x;
   }
-  .lightbox.open { display: flex; }
-  .lightbox img { max-width: 100%; max-height: 100%; object-fit: contain; }
+  .viewer__track::-webkit-scrollbar { display: none; }
+  .viewer__slide {
+    flex: 0 0 100%; margin: 0; display: grid; place-items: center;
+    scroll-snap-align: start; padding: 56px 8px;
+  }
+  .viewer__slide img, .viewer__slide video {
+    display: block; max-width: 100%;
+    max-height: calc(100vh - 112px); max-height: calc(100dvh - 112px);
+    width: auto; height: auto; object-fit: contain;
+  }
+  .viewer__slide img { cursor: pointer; }
+  .viewer__arrow {
+    position: absolute; top: 64px; bottom: 48px; z-index: 2;
+    width: clamp(56px, 22vw, 280px); border: 0; padding: 0; background: transparent;
+    cursor: pointer; opacity: .7; transition: opacity .2s; -webkit-tap-highlight-color: transparent;
+  }
+  .viewer__arrow:hover { opacity: 1; }
+  .viewer__arrow[hidden] { display: none; }
+  .viewer__arrow::before {
+    content: ""; position: absolute; top: 50%; width: 24px; height: 44px; margin-top: -22px;
+    background: var(--text); clip-path: polygon(0 0, 100% 50%, 0 100%);
+    filter: drop-shadow(0 0 6px rgba(0,0,0,.5));
+  }
+  .viewer__arrow--next { right: 0; }
+  .viewer__arrow--next::before { right: 16px; }
+  .viewer__arrow--prev { left: 0; }
+  .viewer__arrow--prev::before { left: 16px; clip-path: polygon(100% 0, 0 50%, 100% 100%); }
+  .viewer__close {
+    position: absolute; top: 8px; right: 8px; z-index: 3; width: 44px; height: 44px;
+    border: 0; padding: 10px; background: transparent; cursor: pointer;
+  }
+  .viewer__close svg { display: block; width: 100%; height: 100%; fill: none; stroke: var(--text); stroke-width: 1.8; stroke-linecap: round; }
+  .viewer__counter {
+    position: absolute; bottom: 18px; left: 0; right: 0; text-align: center;
+    color: var(--muted); font-size: 14px; letter-spacing: .08em; pointer-events: none;
+  }
 
   @media (max-width: 700px) {
     body { font-size: 14px; }
-    .bg::after { background: rgba(8,7,12,.5); }
-    .photos {
-      display: flex; overflow-x: auto; scroll-snap-type: x mandatory;
-      margin-right: calc(-1 * var(--pad)); padding-right: var(--pad);
-      scrollbar-width: none;
-    }
-    .photos::-webkit-scrollbar { display: none; }
-    .photos button { flex: 0 0 78%; scroll-snap-align: start; }
     table.prices th, table.prices td { padding-right: 1em; }
   }
   @media (prefers-reduced-motion: reduce) {
@@ -184,11 +294,7 @@
     <p class="note">Нанесение логотипа компании — включено в стоимость.</p>
     <p class="note">Другие цвета и размеры — обсуждаются с индивидуальным расчётом стоимости.</p>
 
-    <div class="photos">
-      <button type="button"><img src="img/box-1.jpg" alt="Подарочная коробка" loading="lazy"></button>
-      <button type="button"><img src="img/box-2.jpg" alt="Подарочная коробка" loading="lazy"></button>
-      <button type="button"><img src="img/box-3.jpg" alt="Подарочная коробка" loading="lazy"></button>
-    </div>
+    <div class="gallery" data-key="box" data-label="Подарочная коробка"></div>
   </section>
 
   <!-- 02 -->
@@ -214,11 +320,7 @@
     <p>В галерее также представлены примеры наших прошлогодних коллекций: драконы, кролики, тигрята и другие персонажи.</p>
     <p class="note">Разработка индивидуального дизайна доступна при заказе от 40 наборов.</p>
 
-    <div class="photos">
-      <button type="button"><img src="img/toys-1.jpg" alt="Ёлочные игрушки" loading="lazy"></button>
-      <button type="button"><img src="img/toys-2.jpg" alt="Ёлочные игрушки" loading="lazy"></button>
-      <button type="button"><img src="img/toys-3.jpg" alt="Ёлочные игрушки" loading="lazy"></button>
-    </div>
+    <div class="gallery" data-key="toys" data-label="Ёлочные игрушки"></div>
   </section>
 
   <!-- 03 -->
@@ -235,11 +337,7 @@
     </ul>
     <p class="note">Минимальный тираж — 20 штук.</p>
 
-    <div class="photos">
-      <button type="button"><img src="img/urta-1.jpg" alt="Коробка «Юрта»" loading="lazy"></button>
-      <button type="button"><img src="img/urta-2.jpg" alt="Коробка «Юрта»" loading="lazy"></button>
-      <button type="button"><img src="img/urta-3.jpg" alt="Коробка «Юрта»" loading="lazy"></button>
-    </div>
+    <div class="gallery" data-key="urta" data-label="Коробка «Юрта»"></div>
   </section>
 
   <!-- 04 -->
@@ -263,11 +361,7 @@
       <li>поставка без коробки — более бюджетное решение</li>
     </ul>
 
-    <div class="photos">
-      <button type="button"><img src="img/kluch-1.jpg" alt="Ключница" loading="lazy"></button>
-      <button type="button"><img src="img/kluch-2.jpg" alt="Ключница" loading="lazy"></button>
-      <button type="button"><img src="img/kluch-3.jpg" alt="Ключница" loading="lazy"></button>
-    </div>
+    <div class="gallery" data-key="kluch" data-label="Ключница"></div>
   </section>
 
   <!-- 05 -->
@@ -286,11 +380,7 @@
       <li>изготовление наград для корпоративных мероприятий, конкурсов, юбилеев и профессиональных достижений</li>
     </ul>
 
-    <div class="photos">
-      <button type="button"><img src="img/stat-1.jpg" alt="Награды и статуэтки" loading="lazy"></button>
-      <button type="button"><img src="img/stat-2.jpg" alt="Награды и статуэтки" loading="lazy"></button>
-      <button type="button"><img src="img/stat-3.jpg" alt="Награды и статуэтки" loading="lazy"></button>
-    </div>
+    <div class="gallery" data-key="stat" data-label="Награды и статуэтки"></div>
   </section>
 
   <!-- 06 -->
@@ -308,11 +398,7 @@
     </ul>
     <p>Отличный вариант для массовых корпоративных подарков, дополнения больших наборов и приятных комплиментов вашим клиентам.</p>
 
-    <div class="photos">
-      <button type="button"><img src="img/meloch-1.jpg" alt="Сувениры" loading="lazy"></button>
-      <button type="button"><img src="img/meloch-2.jpg" alt="Сувениры" loading="lazy"></button>
-      <button type="button"><img src="img/meloch-3.jpg" alt="Сувениры" loading="lazy"></button>
-    </div>
+    <div class="gallery" data-key="meloch" data-label="Сувениры"></div>
   </section>
 
   <!-- Финал -->
@@ -329,7 +415,7 @@
     </div>
     <div class="cta-block">
       <p>Подпишитесь на наш Instagram, чтобы видеть все новинки</p>
-      <a class="btn ghost" href="https://www.instagram.com/horeca.market.kg/" target="_blank" rel="noopener">@horeca.market.kg</a>
+      <a class="btn insta" href="https://www.instagram.com/horeca.market.kg/" target="_blank" rel="noopener">@horeca.market.kg</a>
     </div>
 
     <h3>Важный момент — сроки!</h3>
@@ -343,7 +429,16 @@
   <div class="end"><img src="img/logo-icon.png" alt=""></div>
 </main>
 
-<div class="lightbox" id="lightbox" role="dialog" aria-label="Просмотр фото"><img alt=""></div>
+<div class="viewer" id="viewer" role="dialog" aria-label="Просмотр фото" hidden>
+  <div class="viewer__track" id="viewer-track"></div>
+  <button class="viewer__arrow viewer__arrow--prev" id="viewer-prev" aria-label="Предыдущее фото"></button>
+  <button class="viewer__arrow viewer__arrow--next" id="viewer-next" aria-label="Следующее фото"></button>
+  <div class="viewer__counter" id="viewer-counter"></div>
+  <button class="viewer__close" id="viewer-close" aria-label="Закрыть"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5l14 14M19 5L5 19"/></svg></button>
+</div>
+
+<script src="photos.js"></script>
+<script src="gallery.js"></script>
 
 <script>
   // Фон: картинка масштабируется по ширине (или по высоте, если экран узкий),
@@ -354,6 +449,8 @@
 
     function layout() {
       var vw = window.innerWidth, vh = window.innerHeight;
+      // ширина окна без полосы прокрутки — для галерей
+      document.documentElement.style.setProperty('--vw', document.documentElement.clientWidth + 'px');
       var s = Math.max(vw / W, vh / H);
       var h = H * s;
       img.style.width = (W * s) + 'px';
@@ -373,20 +470,6 @@
     window.addEventListener('resize', layout);
     window.addEventListener('load', layout);
     layout();
-  })();
-
-  // Просмотр фото по клику
-  (function () {
-    var box = document.getElementById('lightbox'), big = box.querySelector('img');
-    document.querySelectorAll('.photos button').forEach(function (b) {
-      b.addEventListener('click', function () {
-        var i = b.querySelector('img');
-        big.src = i.src; big.alt = i.alt; box.classList.add('open');
-      });
-    });
-    function close() { box.classList.remove('open'); }
-    box.addEventListener('click', close);
-    document.addEventListener('keydown', function (e) { if (e.key === 'Escape') close(); });
   })();
 </script>
 </body>
