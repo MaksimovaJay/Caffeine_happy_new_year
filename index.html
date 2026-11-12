@@ -103,7 +103,9 @@
 
   /* ===== Финал ===== */
   .final { padding-top: clamp(56px, 10vh, 120px); }
-  .cta { display: flex; flex-wrap: wrap; gap: 12px; margin: 1.6em 0 2em; }
+  .cta-block { margin: 1.4em 0 1.8em; }
+  .cta-block p { margin-bottom: .7em; font-weight: 700; color: #fff; }
+  .btn.ghost { text-transform: none; }
   .btn {
     display: inline-flex; align-items: center; gap: .6em;
     padding: .95em 1.6em; border-radius: 999px; text-decoration: none;
@@ -321,10 +323,13 @@
     <p class="note">Приглашаем вас заглянуть на нашу страницу в Instagram — возможно, среди наших проектов вы найдёте идею, которая вдохновит вас на создание собственного подарка.</p>
     <p class="note">Напишите нам в WhatsApp — обсудим любые идеи, тиражи, варианты исполнения и подготовим прозрачный расчёт стоимости без скрытых условий.</p>
 
-    <!-- TODO: вставить реальный номер WhatsApp (только цифры, с кодом страны) и ссылку на Instagram -->
-    <div class="cta">
-      <a class="btn" href="https://wa.me/996000000000" target="_blank" rel="noopener">Написать в WhatsApp</a>
-      <a class="btn ghost" href="https://instagram.com/" target="_blank" rel="noopener">Instagram</a>
+    <div class="cta-block">
+      <p>Обсудить и оформить заказ можно у нас в WhatsApp</p>
+      <a class="btn" href="https://api.whatsapp.com/send/?phone=996776077501" target="_blank" rel="noopener">Написать в WhatsApp</a>
+    </div>
+    <div class="cta-block">
+      <p>Подпишитесь на наш Instagram, чтобы видеть все новинки</p>
+      <a class="btn ghost" href="https://www.instagram.com/horeca.market.kg/" target="_blank" rel="noopener">@horeca.market.kg</a>
     </div>
 
     <h3>Важный момент — сроки!</h3>
